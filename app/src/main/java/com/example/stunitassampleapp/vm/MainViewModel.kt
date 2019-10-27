@@ -1,6 +1,7 @@
 package com.example.stunitassampleapp.vm
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.stunitassampleapp.network.RetrofitHelper
@@ -11,6 +12,9 @@ import retrofit2.Response
 
 class MainViewModel : ViewModel() {
     val queryString = MutableLiveData<String>()
+
+    private val _imageUrls = MutableLiveData<List<String>>()
+    val imageUrls: LiveData<List<String>> get() = _imageUrls
 
     fun searchQuery() {
         RetrofitHelper
@@ -27,7 +31,13 @@ class MainViewModel : ViewModel() {
                     response: Response<KakaoImageResponse>
                 ) {
                     if (response.isSuccessful) {
-                        Log.d("test", "success")
+                        val data = response.body()
+
+                        if (data != null) {
+                            _imageUrls.value = data.documents.map { it.imageUrl }
+                        } else {
+                            Log.d("test", "data is null")
+                        }
                     } else {
                         Log.d("test", "${response.code()} ${response.message()}")
                     }

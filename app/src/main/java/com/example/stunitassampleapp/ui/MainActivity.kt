@@ -9,9 +9,8 @@ import com.example.stunitassampleapp.vm.MainViewModel
 
 class MainActivity : AppCompatActivity() {
 
-    private val viewModel by lazy {
-        MainViewModel()
-    }
+    private val viewModel by lazy { MainViewModel() }
+    private val kakaoAdapter by lazy { KakaoImageAdapter() }
 
     private lateinit var binding: ActivityMainBinding
 
@@ -20,5 +19,13 @@ class MainActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.vm = viewModel
         binding.lifecycleOwner = this
+
+        initRecyclerView()
     }
+
+    private fun initRecyclerView() {
+        binding.rvImages.adapter = kakaoAdapter
+    }
+
+
 }

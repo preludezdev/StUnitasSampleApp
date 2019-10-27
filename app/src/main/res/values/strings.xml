@@ -2,4 +2,5 @@
     <string name="app_name">StUnitasSampleApp</string>
     <string name="et_hint">검색어를 입력하세요.</string>
     <string name="iv_search_description">검색 버튼</string>
+    <string name="iv_item_description">검색된 이미지</string>
 </resources>
