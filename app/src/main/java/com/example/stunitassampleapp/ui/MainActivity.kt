@@ -1,7 +1,8 @@
-package com.example.stunitassampleapp
+package com.example.stunitassampleapp.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.stunitassampleapp.R
 
 class MainActivity : AppCompatActivity() {
 
