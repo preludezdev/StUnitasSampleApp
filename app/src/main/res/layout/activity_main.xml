@@ -29,7 +29,6 @@
                 android:layout_height="0dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
                 android:layout_weight="1"
                 android:ems="10"
@@ -37,22 +36,20 @@
                 android:inputType="textPersonName"
                 android:text="@={vm.queryString}"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/iv_search"
+                app:layout_constraintEnd_toStartOf="@+id/button"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="Autofill" />
 
-            <ImageView
-                android:id="@+id/iv_search"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="16dp"
-                android:contentDescription="@string/iv_search_description"
-                android:onClick="@{()-> vm.searchQuery()}"
-                app:layout_constraintBottom_toBottomOf="@+id/et_search"
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{()->vm.searchQuery()}"
+                android:text="Button"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/et_search"
-                app:srcCompat="@drawable/search" />
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -64,8 +61,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/con"
-            app:setData="@{vm.imageUrls}" />
+            app:layout_constraintTop_toBottomOf="@+id/con" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

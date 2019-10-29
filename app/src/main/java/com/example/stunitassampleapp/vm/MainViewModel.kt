@@ -1,51 +1,36 @@
 package com.example.stunitassampleapp.vm
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.stunitassampleapp.network.RetrofitHelper
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
+import com.example.stunitassampleapp.data.KakaoDataSource
+import com.example.stunitassampleapp.data.KakaoDataSourceFactory
 import com.example.stunitassampleapp.network.vo.KakaoImageResponse
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import java.util.concurrent.Executors
 
 class MainViewModel : ViewModel() {
     val queryString = MutableLiveData<String>()
+    var kakaoPagedList: LiveData<PagedList<KakaoImageResponse.Document>>
+    private var dataSourceFactory: KakaoDataSourceFactory = KakaoDataSourceFactory("")
 
-    private val _imageUrls = MutableLiveData<List<String>>()
-    val imageUrls: LiveData<List<String>> get() = _imageUrls
+    init {
+        val config = PagedList.Config.Builder()
+            .setInitialLoadSizeHint(KakaoDataSource.PAGE_SIZE)
+            .setEnablePlaceholders(true)
+            .setPageSize(KakaoDataSource.PAGE_SIZE)
+            .setPrefetchDistance(5)
+            .build()
+
+        kakaoPagedList = LivePagedListBuilder(dataSourceFactory, config)
+            .setFetchExecutor(Executors.newFixedThreadPool(5))
+            .build()
+    }
 
     fun searchQuery() {
-        RetrofitHelper
-            .getInstance()
-            .apiService
-            .searchImagesByQuery(API_KEY, queryString.value ?: "")
-            .enqueue(object : Callback<KakaoImageResponse> {
-                override fun onFailure(call: Call<KakaoImageResponse>, t: Throwable) {
-                    Log.d("test", "fail to connect kakao Api")
-                }
-
-                override fun onResponse(
-                    call: Call<KakaoImageResponse>,
-                    response: Response<KakaoImageResponse>
-                ) {
-                    if (response.isSuccessful) {
-                        val data = response.body()
-
-                        if (data != null) {
-                            _imageUrls.value = data.documents.map { it.imageUrl }
-                        } else {
-                            Log.d("test", "data is null")
-                        }
-                    } else {
-                        Log.d("test", "${response.code()} ${response.message()}")
-                    }
-                }
-            })
+        dataSourceFactory.setQuery(queryString.value!!)
+        dataSourceFactory.getLiveDataSource().value?.invalidate()
     }
 
-    companion object {
-        const val API_KEY = "KakaoAK 53cccb2e09fc1dfeec6ec2755b3e9325"
-    }
 }

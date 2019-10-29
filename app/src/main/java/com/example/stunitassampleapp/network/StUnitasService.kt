@@ -11,6 +11,8 @@ interface StUnitasService {
     @GET("v2/search/image")
     fun searchImagesByQuery(
         @Header("Authorization") key: String,
-        @Query("query") query: String
+        @Query("query") query: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int
     ): Call<KakaoImageResponse>
 }

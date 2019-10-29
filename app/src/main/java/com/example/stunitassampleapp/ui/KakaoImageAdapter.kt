@@ -2,20 +2,16 @@ package com.example.stunitassampleapp.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagedListAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.stunitassampleapp.R
 import com.example.stunitassampleapp.databinding.KakaoItemLayoutBinding
+import com.example.stunitassampleapp.network.vo.KakaoImageResponse
 
-class KakaoImageAdapter : RecyclerView.Adapter<KakaoImageAdapter.KakaoViewHolder>() {
-    private val imageUrls = mutableListOf<String>()
-
-    fun setData(urls: List<String>?) {
-        if (!urls.isNullOrEmpty()) {
-            imageUrls.clear()
-            imageUrls.addAll(urls)
-            notifyDataSetChanged()
-        }
-    }
+class KakaoImageAdapter :
+    PagedListAdapter<KakaoImageResponse.Document, KakaoImageAdapter.KakaoViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): KakaoViewHolder {
         val binding =
@@ -24,20 +20,36 @@ class KakaoImageAdapter : RecyclerView.Adapter<KakaoImageAdapter.KakaoViewHolder
         return KakaoViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = imageUrls.size
-
     override fun onBindViewHolder(holder: KakaoViewHolder, position: Int) {
-        holder.bind(imageUrls[position])
+        getItem(position)?.let { holder.bind(it) }
     }
 
     class KakaoViewHolder(private val binding: KakaoItemLayoutBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(url: String) {
+        fun bind(document: KakaoImageResponse.Document) {
             Glide
                 .with(binding.root)
-                .load(url)
+                .load(document.imageUrl)
+                .placeholder(R.drawable.loading)
+                .error(R.drawable.error)
                 .into(binding.ivImage)
+        }
+    }
+
+    companion object {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<KakaoImageResponse.Document>() {
+            override fun areItemsTheSame(
+                oldItem: KakaoImageResponse.Document,
+                newItem: KakaoImageResponse.Document
+            ) =
+                oldItem.imageUrl === newItem.imageUrl
+
+            override fun areContentsTheSame(
+                oldItem: KakaoImageResponse.Document,
+                newItem: KakaoImageResponse.Document
+            ) =
+                oldItem.imageUrl == newItem.imageUrl
         }
     }
 }
