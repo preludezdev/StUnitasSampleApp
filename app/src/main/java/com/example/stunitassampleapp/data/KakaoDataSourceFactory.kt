@@ -12,8 +12,10 @@ class KakaoDataSourceFactory(private var query: String) :
     private val kakaoLiveDataSource =
         MutableLiveData<PageKeyedDataSource<Int, KakaoImageResponse.Document>>()
 
+    var kakaoDataSource = KakaoDataSource(query)
+
     override fun create(): DataSource<Int, KakaoImageResponse.Document> {
-        val kakaoDataSource = KakaoDataSource(query)
+        kakaoDataSource = KakaoDataSource(query)
         kakaoLiveDataSource.postValue(kakaoDataSource)
         return kakaoDataSource
     }

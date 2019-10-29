@@ -1,6 +1,6 @@
 package com.example.stunitassampleapp.data
 
-import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
 import com.example.stunitassampleapp.network.RetrofitHelper
 import com.example.stunitassampleapp.network.vo.KakaoImageResponse
@@ -11,18 +11,26 @@ import retrofit2.Response
 class KakaoDataSource(private var query: String) :
     PageKeyedDataSource<Int, KakaoImageResponse.Document>() {
 
+    private val callbackMessage = MutableLiveData<String>()
+    private val isLoading = MutableLiveData<Boolean>()
+
+    fun getCallbackMsgLiveData() = callbackMessage
+    fun getIsLoadingLiveData() = isLoading
+
     override fun loadInitial(
         params: LoadInitialParams<Int>,
         callback: LoadInitialCallback<Int, KakaoImageResponse.Document>
     ) {
-        Log.d("test", "load initial")
+        showProgressBar()
+
         RetrofitHelper
             .getInstance()
             .apiService
             .searchImagesByQuery(API_KEY, query, FIRST_PAGE, PAGE_SIZE)
             .enqueue(object : Callback<KakaoImageResponse> {
                 override fun onFailure(call: Call<KakaoImageResponse>, t: Throwable) {
-                    Log.d("test", "fail")
+                    callbackMessage.postValue("데이터 통신에 실패했습니다.")
+                    hideProgressBar()
                 }
 
                 override fun onResponse(
@@ -33,13 +41,15 @@ class KakaoDataSource(private var query: String) :
                         val data = response.body()
 
                         if (data != null) {
-                            callback.onResult(
-                                data.documents, null, FIRST_PAGE + 1
-                            )
+                            if (data.meta.totalCount == 0) {
+                                callbackMessage.postValue("검색결과가 없습니다.")
+                            } else {
+                                callback.onResult(data.documents, null, FIRST_PAGE + 1)
+                            }
                         }
-                    } else {
-                        Log.d("test", "${response.errorBody()}")
                     }
+
+                    hideProgressBar()
                 }
             })
     }
@@ -48,14 +58,16 @@ class KakaoDataSource(private var query: String) :
         params: LoadParams<Int>,
         callback: LoadCallback<Int, KakaoImageResponse.Document>
     ) {
-        Log.d("test", "loadAfter")
+        showProgressBar()
+
         RetrofitHelper
             .getInstance()
             .apiService
             .searchImagesByQuery(API_KEY, query, params.key, PAGE_SIZE)
             .enqueue(object : Callback<KakaoImageResponse> {
                 override fun onFailure(call: Call<KakaoImageResponse>, t: Throwable) {
-                    Log.d("test", "fail")
+                    callbackMessage.postValue("데이터 통신에 실패했습니다.")
+                    hideProgressBar()
                 }
 
                 override fun onResponse(
@@ -66,15 +78,18 @@ class KakaoDataSource(private var query: String) :
                         val data = response.body()
 
                         if (data != null) {
-                            val key = if (params.key > 1) params.key + 1 else null
-                            callback.onResult(data.documents, key)
-                        } else {
-                            Log.d("test", "data is null")
+                            if (data.meta.totalCount == 0) {
+                                callbackMessage.postValue("검색결과가 없습니다.")
+                            } else {
+                                val key = if (params.key > 1) params.key + 1 else null
+                                callback.onResult(data.documents, key)
+                            }
                         }
                     } else {
-                        Log.d("test", "Response is not successful")
-                        Log.d("test", "${response.errorBody()}")
+                        callbackMessage.postValue("데이터 통신에 실패했습니다.")
                     }
+
+                    hideProgressBar()
                 }
             })
     }
@@ -83,14 +98,16 @@ class KakaoDataSource(private var query: String) :
         params: LoadParams<Int>,
         callback: LoadCallback<Int, KakaoImageResponse.Document>
     ) {
-        Log.d("test", "loadBefore")
+        showProgressBar()
+
         RetrofitHelper
             .getInstance()
             .apiService
             .searchImagesByQuery(API_KEY, query, params.key, PAGE_SIZE)
             .enqueue(object : Callback<KakaoImageResponse> {
                 override fun onFailure(call: Call<KakaoImageResponse>, t: Throwable) {
-                    Log.d("test", "fail")
+                    callbackMessage.postValue("데이터 통신에 실패했습니다.")
+                    hideProgressBar()
                 }
 
                 override fun onResponse(
@@ -101,17 +118,28 @@ class KakaoDataSource(private var query: String) :
                         val data = response.body()
 
                         if (data != null) {
-                            val key = if (!data.meta.isEnd) params.key - 1 else null
-                            callback.onResult(data.documents, key)
-                        } else {
-                            Log.d("test", "data is null")
+                            if (data.meta.totalCount == 0) {
+                                callbackMessage.postValue("검색결과가 없습니다.")
+                            } else {
+                                val key = if (params.key > 1) params.key - 1 else null
+                                callback.onResult(data.documents, key)
+                            }
                         }
                     } else {
-                        Log.d("test", "Response is not successful")
-                        Log.d("test", "${response.errorBody()}")
+                        callbackMessage.postValue("데이터 통신에 실패했습니다.")
                     }
+
+                    hideProgressBar()
                 }
             })
+    }
+
+    private fun showProgressBar() {
+        isLoading.postValue(true)
+    }
+
+    private fun hideProgressBar() {
+        isLoading.postValue(false)
     }
 
     companion object {
