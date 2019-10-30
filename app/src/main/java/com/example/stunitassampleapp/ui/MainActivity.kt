@@ -67,10 +67,6 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.callbackMessage.observe(this, Observer {
             showToastMessage(it)
         })
-
-        mainViewModel.isLoading.observe(this, Observer {
-
-        })
     }
 
     private fun showToastMessage(msg: String?) {

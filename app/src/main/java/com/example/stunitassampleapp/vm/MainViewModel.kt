@@ -13,11 +13,11 @@ import java.util.concurrent.Executors
 
 
 class MainViewModel : ViewModel() {
-    val queryString = MutableLiveData<String>()
-    var kakaoPagedList: LiveData<PagedList<KakaoImageResponse.Document>>
     private var dataSourceFactory: KakaoDataSourceFactory = KakaoDataSourceFactory("")
+    var kakaoPagedList: LiveData<PagedList<KakaoImageResponse.Document>>
     var callbackMessage: LiveData<String>
     var isLoading: LiveData<Boolean>
+    val queryString = MutableLiveData<String>()
 
     init {
         val config = PagedList.Config.Builder()
